@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <style>
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #d30000;
+            border-bottom: 16px solid #19416a;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 2s linear infinite;
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .div1 {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+    </style>
+
+    <title>Document</title>
+</head>
+<body>
+
+<div style="text-align: center">
+
+    <p>Hello!</p>
+    <div class="div1">
+        <input type="text" id="text1">
+        <input type="text" id="text2">
+        <button onclick="send()">send</button>
+    </div>
+    <div class="div1">
+        <button onclick="sendFile()">sendFile</button>
+        <input type="file" id="file1">
+    </div>
+    <div class="div1">
+        <div id="load"></div>
+        <p id="response"></p>
+    </div>
+
+</div>
+<script>
+
+    stompClient = new Stomp.client('ws://localhost:8080/upload')
+    stompClient.connect({}, function (frame) {
+        sub()
+    });
+    stompClient.debug = null
+
+    const sub = () => {
+        stompClient.subscribe('/topic/messages', function (messageOutput) {
+            let p = document.getElementById('response');
+            p.textContent = messageOutput.body.toString()
+        });
+    }
+
+    const send = () => {
+        let text1 = document.getElementById('text1').value;
+        let text2 = document.getElementById('text2').value;
+        stompClient.send("/app/chat", {}, JSON.stringify({'from': text1, 'text': text2}));
+    }
+
+    async function sendFile() {
+        let l = document.getElementById('load');
+        l.classList.add('loader');
+        let file = document.getElementById('file1').files[0];
+        let reader = new FileReader();
+        reader.onload = function () {
+            let arrayBuffer = this.result;
+            let enc = new TextDecoder("utf-8");
+            stompClient.send("/app/upload", {}, enc.decode(arrayBuffer));
+            l.classList.remove('loader');
+        }
+        await reader.readAsArrayBuffer(file);
+    }
+
+</script>
+</body>
+</html>
