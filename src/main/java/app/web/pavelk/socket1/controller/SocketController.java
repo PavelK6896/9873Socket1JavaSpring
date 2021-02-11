@@ -5,7 +5,6 @@ import app.web.pavelk.socket1.dto.MessageDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.Message;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,10 +49,11 @@ public class SocketController {
     }
 
     @MessageMapping("/upload")
-    public void portfolio(Message<byte[]> message) throws IOException, InterruptedException {
-        byte[] payload = message.getPayload();
+    public void portfolio(byte[] message) throws IOException, InterruptedException {
+        byte[] payload = message;
+
         System.out.println(" -- upload -- " + payload.length);
-        Files.write(Paths.get("file1.txt"), payload, StandardOpenOption.CREATE);
+        Files.write(Paths.get("file1.pdf"), payload, StandardOpenOption.CREATE);
         for (int i = 0; i < 100; i++) {
             Thread.sleep(20);
             simpMessagingTemplate.convertAndSend("/topic/messages",
@@ -61,5 +61,12 @@ public class SocketController {
         }
         simpMessagingTemplate.convertAndSend("/topic/messages", objectMapper.writeValueAsString("ok"));
     }
+
+    @MessageMapping("/vote")
+    public void send(byte[] message) throws JsonProcessingException {
+        simpMessagingTemplate.convertAndSend("/topic/vote",
+                objectMapper.writeValueAsString(new String(message)));
+    }
+
 
 }
