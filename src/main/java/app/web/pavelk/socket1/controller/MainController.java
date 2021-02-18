@@ -9,9 +9,19 @@ import org.springframework.web.util.HtmlUtils;
 @RequiredArgsConstructor
 public class MainController {
 
-    @GetMapping
-    public String index() {
-        return HtmlUtils.htmlEscape("index.html");
+    @GetMapping("/i")
+    public String index1() {
+        return HtmlUtils.htmlEscape("index1.html");
+    }
+
+    @GetMapping("/ii")
+    public String index2() {
+        return HtmlUtils.htmlEscape("index2.html");
+    }
+
+    @GetMapping("/iii")
+    public String index3() {
+        return HtmlUtils.htmlEscape("index3.html");
     }
 
 }
