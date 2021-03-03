@@ -24,4 +24,9 @@ public class MainController {
         return HtmlUtils.htmlEscape("index3.html");
     }
 
+    @GetMapping("/iiii")
+    public String index4() {
+        return HtmlUtils.htmlEscape("index4.html");
+    }
+
 }

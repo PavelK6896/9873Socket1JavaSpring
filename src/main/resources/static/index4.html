@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<button onclick="send()">send</button>
+<script>
+
+    console.log("start")
+    let socket = new SockJS('http://localhost:8080/chat', null, {});
+    stompClient = Stomp.over(socket);
+    stompClient.connect({'Authorization': 'Bearer eyJhbGciOiJIUzUxMiJ9...'}, function (frame) {
+        console.log('Connected: ' + frame);
+        stompClient.subscribe('/topic/messages', function (greeting) {
+            console.log(greeting)
+        });
+    });
+
+    const send = () => {
+        stompClient.send("/app/chat", {}, JSON.stringify({'from': "text1", 'text': "text2"}));
+    }
+
+</script>
+</body>
+</html>
